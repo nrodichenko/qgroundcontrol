@@ -108,9 +108,10 @@ Item {
 
                 RowLayout {
                     Layout.fillWidth:       true
+                    spacing: ScreenTools.defaultFontPixelWidth*2
 
                     QGCLabel {
-                        Layout.alignment:   Qt.AlignTop
+                        Layout.alignment:   Qt.AlignCenter
                         text:               _vehicle ? _vehicle.id : ""
                         color:              _textColor
                     }
@@ -133,49 +134,81 @@ Item {
                         }
                     }
 
-                    QGCCompassWidget {
-                        size:       _widgetHeight
-                        usedByMultipleVehicleList: true
-                        vehicle:    _vehicle
+                    ColumnLayout {
+                        Layout.alignment:   Qt.AlignCenter
+                        spacing:            _margin
+
+                        QGCLabel {
+                            Layout.alignment:           Qt.AlignHCenter
+                            font.pointSize:             ScreenTools.largeFontPointSize
+                            text:                       _vehicle  ? _vehicle.altitudeAMSL.value.toFixed(1) : ""
+                            color:                      _textColor
+                        }
+
+                        QGCLabel {
+                            Layout.alignment:           Qt.AlignHCenter
+                            text:                       "AMSL"
+                            color:                      _textColor
+                        }
                     }
 
-                    QGCAttitudeWidget {
-                        size:       _widgetHeight
-                        vehicle:    _vehicle
+                    ColumnLayout {
+                        Layout.alignment:   Qt.AlignCenter
+                        spacing:            _margin
+
+                        QGCLabel {
+                            property variant gnames: ["None","None","2D Lock","3D Lock","3D DGPS","RTK Float","RTK Fixed", "Static"]
+                            Layout.alignment:           Qt.AlignHCenter
+                            font.pointSize:             ScreenTools.largeFontPointSize
+                            text:                       _vehicle  ? gnames[_vehicle.gps.lock.value] : ""
+                            color:                      _textColor
+                        }
+
+                        QGCLabel {
+                            Layout.alignment:           Qt.AlignHCenter
+                            text:                       _vehicle  ? _vehicle.gps.count.value + " sats" : ""
+                            color:                      _textColor
+                        }
                     }
+
                 } // RowLayout
 
                 Row {
                     spacing: ScreenTools.defaultFontPixelWidth
+                    height: ScreenTools.defaultFontPixelHeight * 1.2
 
                     QGCButton {
-                        text:       "Arm"
-                        visible:    _vehicle && !_vehicle.armed
-                        onClicked:  _vehicle.armed = true
+                        height: parent.height
+                        text:       "ARM"
+                        visible:    _vehicle
+                        onClicked:  {
+                            if (_vehicle && !_vehicle.armed)
+                                _vehicle.armed = true
+                        }
                     }
 
                     QGCButton {
-                        text:       "Start Mission"
-                        visible:    _vehicle && _vehicle.armed && _vehicle.flightMode !== _vehicle.missionFlightMode
-                        onClicked:  _vehicle.startMission()
+                        height: parent.height
+                        text:       "LND"
+                        visible:    _vehicle
+                        onClicked:  _vehicle.flightMode = _vehicle.landFlightMode
                     }
 
                     QGCButton {
-                        text:       "Pause"
-                        visible:    _vehicle && _vehicle.armed && _vehicle.pauseVehicleSupported
-                        onClicked:  _vehicle.pauseVehicle()
+                        height: parent.height
+                        text:       "OFB"
+                        visible:    _vehicle
+                        onClicked:  _vehicle.flightMode = _vehicle._offboardFlightMode
                     }
 
                     QGCButton {
-                        text:       "RTL"
-                        visible:    _vehicle && _vehicle.armed && _vehicle.flightMode !== _vehicle.rtlFlightMode
-                        onClicked:  _vehicle.flightMode = _vehicle.rtlFlightMode
-                    }
-
-                    QGCButton {
-                        text:       "Take control"
-                        visible:    _vehicle && _vehicle.armed && _vehicle.flightMode !== _vehicle.takeControlFlightMode
-                        onClicked:  _vehicle.flightMode = _vehicle.takeControlFlightMode
+                        height: parent.height
+                        text:       "Reboot"
+                        visible:    _vehicle
+                        onClicked:  {
+                            if (_vehicle && !_vehicle.armed)
+                                _vehicle.rebootVehicle
+                        }
                     }
                 } // Row
             } // ColumnLayout

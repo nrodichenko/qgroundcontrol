@@ -64,14 +64,20 @@ void RTCMMavlink::sendMessageToVehicle(const mavlink_gps_rtcm_data_t& msg)
 {
     QmlObjectListModel& vehicles = *_toolbox.multiVehicleManager()->vehicles();
     MAVLinkProtocol* mavlinkProtocol = _toolbox.mavlinkProtocol();
+    LinkInterface* lastLink;
     for (int i = 0; i < vehicles.count(); i++) {
         Vehicle* vehicle = qobject_cast<Vehicle*>(vehicles[i]);
         mavlink_message_t message;
-        mavlink_msg_gps_rtcm_data_encode_chan(mavlinkProtocol->getSystemId(),
-                                              mavlinkProtocol->getComponentId(),
-                                              vehicle->priorityLink()->mavlinkChannel(),
-                                              &message,
-                                              &msg);
-        vehicle->sendMessageOnLink(vehicle->priorityLink(), message);
+        if (lastLink != vehicle->priorityLink()) {
+            mavlink_msg_gps_rtcm_data_encode_chan(mavlinkProtocol->getSystemId(),
+                                                  mavlinkProtocol->getComponentId(),
+                                                  vehicle->priorityLink()->mavlinkChannel(),
+                                                  &message,
+                                                  &msg);
+            vehicle->sendMessageOnLink(vehicle->priorityLink(), message);
+            lastLink = vehicle->priorityLink();
+        } else {
+            qDebug() << "Skipping vehicle id " << vehicle->id();
+        }
     }
 }

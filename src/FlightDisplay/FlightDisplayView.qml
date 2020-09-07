@@ -532,7 +532,7 @@ Item {
             anchors.top:                singleMultiSelector.bottom
             anchors.right:              parent.right
             anchors.bottom:             parent.bottom
-            width:                      ScreenTools.defaultFontPixelWidth * 30
+            width:                      ScreenTools.defaultFontPixelWidth * 40
             visible:                    !singleVehicleView.checked && !QGroundControl.videoManager.fullScreen && QGroundControl.corePlugin.options.enableMultiVehicleList
             z:                          _mapAndVideo.z + 4
             guidedActionsController:    _guidedController
